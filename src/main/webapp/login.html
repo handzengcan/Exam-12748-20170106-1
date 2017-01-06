@@ -3,7 +3,7 @@
 <head>
 <title>登录页面</title>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
- <script type="text/javascript" src="/js/jquery.min.js"></script> 
+ <script type="text/javascript" src="../js/jquery.min.js"></script> 
 <!-- <script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script> -->
 </head>
 <script type="text/javascript">
@@ -24,7 +24,7 @@ $(document).ready(function(){
 				success : function(data) {
 					if (data!="null"&&data!="") {
 						alert("登录成功");
-						window.location.href="/page";
+						window.location.href="page";
 					} else {
 						alert("用户名或密码有误，登录失败");
 					}
