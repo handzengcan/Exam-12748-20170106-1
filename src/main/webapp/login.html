@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>登录页面</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+ <script type="text/javascript" src="/js/jquery.min.js"></script> 
+<!-- <script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script> -->
+</head>
+<script type="text/javascript">
+
+$(document).ready(function(){
+	  $("#btnLogin").click(function(){
+		 var name = $("#username").val();
+		 var password = $("#password").val();
+		  if (name==""||password=="") {
+			alert('用户名或密码不能为空');
+		}else{
+			$.ajax({
+				url : "login.action",
+				data : {
+					"username" : name,
+				},
+				async : true,
+				success : function(data) {
+					if (data!="null"&&data!="") {
+						alert("登录成功");
+						window.location.href="/page";
+					} else {
+						alert("用户名或密码有误，登录失败");
+					}
+				},
+			});
+		}
+	  });
+	});
+	
+</script>
+<body> 
+    <div align="center">  
+    <h2>登录页面</h2>  
+    请输入用户名：<input type="text" id="username" name="username"/><br/><br/> 
+    请输入密码：  &nbsp; <input type="password" id="password" name="password"/><br/><br/>   
+    <input type="button" id="btnLogin"  value="登录" />
+  </body>  
+
+</html>

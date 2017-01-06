@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans   
+    http://www.springframework.org/schema/beans/spring-beans-4.2.xsd   
+    http://www.springframework.org/schema/tx   
+    http://www.springframework.org/schema/tx/spring-tx-4.2.xsd   
+    http://www.springframework.org/schema/aop    
+    http://www.springframework.org/schema/aop/spring-aop-4.2.xsd 
+    http://www.springframework.org/schema/context 
+    http://www.springframework.org/schema/context/spring-context-4.2.xsd ">
+
+	<!-- <context:property-placeholder location=""/> -->
+	<context:component-scan base-package="com.page" />
+	<!-- 引入配置文件 -->
+	    <bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="classpath:conn.properties" />
+	</bean>  <!--   class="org.apache.commons.dbcp.BasicDataSource" -->
+	
+	<!-- 配置数据源 -->
+	<!--  <context:property-placeholder location="classpath:conn.properties"/> --> 
+	 <bean id="jdbcDataSource" class="org.apache.commons.dbcp.BasicDataSource"> <!-- 这些配置Spring在启动时会去conn.properties中找 -->  
+    <property name="driverClassName" value="${driverClassName}" />  
+    <property name="url" value="${url}" />  
+    <property name="username" value="${username}" />  
+    <property name="password" value="${password}" />  
+ </bean>   
+
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<!--dataSource属性指定要用到的连接池 -->
+		<property name="dataSource" ref="jdbcDataSource"></property>
+		<!--configLocation属性指定mybatis的核心配置文件 -->
+		<property name="configLocation" value="classpath:mybatis-config.xml"></property>
+	</bean>
+
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.page.dao" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+	</bean>
+
+	<!-- 使用annotation定义事务  -->
+	  <bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="jdbcDataSource" />
+	</bean>
+
+	<tx:annotation-driven transaction-manager="transactionManager"
+		proxy-target-class="true" /> 
+
+
+</beans>

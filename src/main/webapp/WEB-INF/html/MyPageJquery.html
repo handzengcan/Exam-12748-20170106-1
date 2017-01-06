@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!--
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	-->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+
+<link rel="stylesheet" href="/css/easyui.css"
+	type="text/css"></link>
+<link rel="stylesheet" href="/css/icon.css"
+	type="text/css"></link>
+<link rel="stylesheet" href="/css/demo.css"
+	type="text/css"></link>
+<script type="text/javascript" src="/js/jquery.min.js"></script>
+<script type="text/javascript"
+	src="/js/jquery.easyui.min.js"></script>
+</head>
+
+<div align="center">
+	<!--  rownumbers 	boolean 	设置为 true，则显示带有行号的列。 	 
+      singleSelect 	boolean 	设置为 true，则只允许选中一行。 -->
+	<body>
+		<table id="dg" title="Film DataGrid Pager"
+			style="width: 800px; height: 350px"
+			data-options="rownumbers:true,singleSelect:true,pagination:true,url:'filmpage.action',method:'post'">
+			<thead>
+				<tr>
+					<th data-options="field:'film_id',width:80">电影ID</th>
+					<th data-options="field:'title',width:150">电影名称</th>
+					<th data-options="field:'description',width:450">电影描述</th>
+					<th
+						data-options="field:'language.name',width:100, 
+				formatter: function (value, rec) {
+                      return rec.language['name'];}">语言</th>
+				</tr>
+			</thead>
+		</table>
+
+		<div id="dlg" class="easyui-dialog"
+			style="width: 400px; height: 280px; padding: 10px 20px" closed="true"
+			buttons="#dlg-buttons">
+			<div class="ftitle">Film Information</div>
+			<form id="fm" method="post" novalidate>
+				<div class="fitem" style="margin-top: 5px">
+					<label>电影编号:</label> <input placeholder="ID自增长" size="40"  name="film_id"
+						class="easyui-validatebox" readOnly="true">
+				</div>
+				<div class="fitem" style="margin-top: 10px">
+					<label>电影名称:</label> <input size="40" name="title"
+						class="easyui-validatebox">
+				</div>
+				<div class="fitem" style="margin-top: 10px">
+					<label>电影描述:</label> <input size="40" name="description"
+						class="easyui-validatebox">
+				</div>
+				<div class="fitem" style="margin-top: 10px">
+					<label>电影语言:</label>
+					<select  name="language_id" class="easyui-validatebox" style="width: 120px;">
+						<option selected="selected" value="1">English</option>
+						<option value="2">Italian</option>
+						<option value="3">Japanese</option>
+						<option value="4">Mandarin</option>
+						<option value="5">French</option>
+						<option value="6">German</option>
+					</select>
+				</div>
+			</form>
+		</div>
+		<div id="filmId" style="margin-top: 10px">  
+            <span>Film ID:</span>  
+            <input id="searchFilmId" style="line-height:30px;border:1px solid #ccc">  
+            <a href="javascript:void(0);" class="easyui-linkbutton" onclick="doSearch()">Search</a>  
+        </div> 
+		<div id="dlg-buttons">
+			<a href="javascript:void(0);" class="easyui-linkbutton"
+				iconCls="icon-ok" onclick="saveFilm()">确认</a> 
+		   <a href="javascript:void(0);" class="easyui-linkbutton"
+				iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')">取消</a>
+		</div>
+		<!-- <script type="text/javascript" src="/Exam-12748-20170106-1/js/page.js"></script>   -->
+		<script type="text/javascript">
+		var url;
+			$(function() {
+				$("#filmId").hide();
+				var pager = $('#dg').datagrid().datagrid('getPager'); // get the pager of datagrid
+				//设置为 true，则在数据网格（datagrid）底部显示分页工具栏。
+				pager.pagination({
+					buttons : [ {
+						iconCls : 'icon-search',
+						handler : function() {
+							search();
+						}
+					}, {
+						iconCls : 'icon-add',
+						handler : function() {
+							add();
+						}
+					}, {
+						iconCls : 'icon-edit',
+						handler : function() {
+							edit();
+						}
+					}, {
+						iconCls : 'icon-remove',
+						handler : function() {
+							deleteData();
+						}
+					} ]
+				});
+			})
+			function edit() {
+				var row = $('#dg').datagrid('getSelected');
+				if (row) {
+					$('#dlg').dialog('open').dialog('setTitle', '编辑电影');
+					$('#fm').form('load', row);
+					url = 'updateFilm.action'; 
+				}else{
+					alert("请选择要编辑的数据");
+				}
+			}
+			function saveFilm(){
+				  $('#fm').form('submit',{  
+		                url: url,
+		                onSubmit: function(){  
+		                    return $(this).form('validate');  
+		                },  
+		                success: function(result){  
+		                   // var result = eval('('+result+')');  
+		                    if (result>0){  
+		                        $('#dlg').dialog('close');      // close the dialog  
+		                        $('#dg').datagrid('reload');    // reload the user data  
+		                        alert("成功"); 
+		                    } else {  
+		                       alert("失败"); 
+		                    }  
+		                }  
+		            });  
+			}
+			function deleteData() {
+				var row = $('#dg').datagrid('getSelected');
+				//alert(row.film_id);
+				var id = row.film_id
+				var str = window.confirm("确定要删除film_id为" + id + "的数据吗?");
+				if (str) {
+					$.ajax({
+						url : "delete.action",
+						type:'POST',
+						data : {
+							"film_id" : id,
+						},
+						async : true,
+						success : function(data) {
+							if (data > 0) {
+								var rowIndex = $('#dg').datagrid('getRowIndex',
+										row);
+								$('#dg').datagrid('deleteRow', rowIndex);
+								$('#dg').datagrid('reload');
+								alert("数据删除成功");
+							}else {
+								alert("外键关联 数据删除失败");
+							}
+						},
+					});
+				} 
+			}
+			function add(){
+				$('#dlg').dialog('open').dialog('setTitle','添加电影');  
+	            $('#fm').form('clear');  
+	            url="addFilm.action";
+			}
+			function search(){
+				$("#filmId").show();
+			}
+			function doSearch(){
+				  $('#dg').datagrid('load',{  
+					searchFilmId:$('#searchFilmId').val()
+					});
+				}
+		</script>
+	</body>
+</div>
+</html>

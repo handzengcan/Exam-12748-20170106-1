@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.page.dao.FilmMapper" >
+
+<!-- 用属性查询 -->
+<resultMap type="filmSupper" id="selectFilm">
+<id property="film_id" column="film_id"/>
+<result property="title" column="title"/>
+<result property="description" column="description"/>
+<association property="language" column="language_id" javaType="language">
+<id property="language_id" column="language_id"/>
+<result property="name" column="name"/>
+<result property="last_update" column="last_update"/>
+</association>
+</resultMap>
+
+
+<select id="selectCusList" resultMap="selectFilm" >
+ select film_id,title,description,name
+  from  film inner join language on film.language_id = language.language_id
+</select>
+
+<delete id="deleteFilm"  parameterType="int" >
+delete from film where film_id = #{id}
+</delete>
+
+<update id="updateFilm" parameterType="filmSupper">
+update film set title=#{title},description=#{description},language_id=#{language_id} 
+where film_id = #{film_id}
+</update>
+
+<select id="selectFist_Name" parameterType="String" resultType="customer">
+select * from customer where first_name=#{username}
+</select>
+
+<insert id="addFilm" parameterType="filmSupper">
+insert into  film(title,description,language_id) values(#{title},#{description},#{language_id})
+</insert>
+
+<select id="selectFilmData" resultMap="selectFilm" parameterType="int" >
+select film_id,title,description,name
+  from film inner join language on film.language_id = language.language_id 
+  where film_id like CONCAT('%',#{film_id},'%' ) 
+</select>
+
+</mapper>
